@@ -1,11 +1,13 @@
 <script setup lang="ts">
+import { auth } from "../firebase/config";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { ref } from "vue";
 
 const email = ref("");
 const password = ref("");
 const errorMsg = ref("");
 
-const handleLogin = () => {
+const handleLogin = async () => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   if (!email.value) {
@@ -26,6 +28,19 @@ const handleLogin = () => {
   if (password.value.length < 6) {
     errorMsg.value = "รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร";
     return;
+  }
+
+  try {
+    // Clear any previous error message
+    errorMsg.value = "";
+    const res = await signInWithEmailAndPassword(
+      auth,
+      email.value,
+      password.value,
+    );
+  } catch (error) {
+    console.error("Error clearing error message:", error);
+    errorMsg.value = "อีเมลหรือรหัสผ่านไม่ถูกต้อง";
   }
 
   console.log("Login clicked");
