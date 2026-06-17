@@ -38,7 +38,9 @@ const handleLogin = async () => {
       email.value,
       password.value,
     );
-  } catch (error) {
+
+    alert("Login successful!");
+  } catch (error: any) {
     console.error("Error clearing error message:", error);
     errorMsg.value = "อีเมลหรือรหัสผ่านไม่ถูกต้อง";
   }
