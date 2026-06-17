@@ -90,7 +90,7 @@ const addToCart = () => {
       <div v-else class="flex flex-col md:flex-row gap-12 lg:gap-24 items-center md:items-stretch">
         <!-- Product Image -->
         <div class="w-full md:w-1/2">
-          <div class="aspect-[4/5] overflow-hidden bg-white rounded-sm shadow-sm transition-all duration-300 ease-in-out hover:shadow-md">
+          <div class="aspect-4/5 overflow-hidden bg-white rounded-sm shadow-sm transition-all duration-300 ease-in-out hover:shadow-md">
             <img
               :src="product.imageUrl || '/watch.png'"
               :alt="product.name"
@@ -139,11 +139,13 @@ const addToCart = () => {
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
   -webkit-appearance: none;
+  appearance: none;
   margin: 0;
 }
 
 /* Firefox */
 input[type=number] {
   -moz-appearance: textfield;
+  appearance: textfield;
 }
 </style>

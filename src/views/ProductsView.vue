@@ -1,11 +1,23 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import { collection, getDocs } from "firebase/firestore";
-import { db } from "../firebase/config";
+import { auth, db } from "../firebase/config";
+import { signOut } from "firebase/auth";
+import { useRouter } from "vue-router";
 import type { Product } from "../types/product";
 
 const products = ref<Product[]>([]);
 const isVisible = ref(false);
+const router = useRouter();
+
+const handleLogout = async () => {
+  try {
+    await signOut(auth);
+    router.push({ name: 'home' });
+  } catch (error) {
+    console.error("Logout error:", error);
+  }
+};
 
 onMounted(async () => {
   try {
@@ -33,6 +45,9 @@ onMounted(async () => {
         Lumina
       </RouterLink>
       <div class="flex items-center space-x-6">
+        <button @click="handleLogout" class="text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors duration-300 ease-in-out">
+          Logout
+        </button>
         <RouterLink :to="{ name: 'cart' }" class="text-slate-900 hover:opacity-70 hover:scale-[1.02] transition-all duration-300 ease-in-out">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
         </RouterLink>
@@ -55,14 +70,14 @@ onMounted(async () => {
           class="group cursor-pointer flex flex-col"
         >
           <!-- Make the image container click through to the detail view -->
-          <RouterLink :to="{ name: 'product-detail', params: { id: product.id } }" class="aspect-[4/5] mb-6 overflow-hidden bg-white rounded-sm shadow-sm transition-all duration-300 ease-in-out group-hover:shadow-md">
+          <RouterLink :to="{ name: 'product-detail', params: { id: product.id } }" class="aspect-4/5 mb-6 overflow-hidden bg-white rounded-sm shadow-sm transition-all duration-300 ease-in-out group-hover:shadow-md">
             <img
               :src="product.imageUrl || '/watch.png'"
               :alt="product.name"
               class="w-full h-full object-cover group-hover:scale-[1.02] transition-all duration-500 ease-in-out"
             />
           </RouterLink>
-          <div class="space-y-2 flex-grow">
+          <div class="space-y-2 grow">
             <p class="text-xs font-medium tracking-wider text-slate-400 uppercase">{{ product.category || 'Essential' }}</p>
             <h3 class="text-lg font-medium text-slate-900 group-hover:text-slate-600 transition-colors duration-300 ease-in-out line-clamp-1">
               <RouterLink :to="{ name: 'product-detail', params: { id: product.id } }">
