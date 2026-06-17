@@ -1,42 +1,31 @@
-# project-test
+โปรเจกต์ Mini Project (Vue 3 + TypeScript) นี้ เลือกใช้บริการคลาวด์แบบ Serverless จาก **Firebase** ในการจัดการระบบหลังบ้านทั้งหมด โดยมีหลักการทำงานในแต่ละส่วนดังนี้:
 
-This template should help get you started developing with Vue 3 in Vite.
+---
 
-## Recommended IDE Setup
+### 1. Firebase Authentication (ระบบจัดการสิทธิ์ผู้ใช้งาน)
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+- **หลักการทำงาน:** ทำหน้าที่เป็น Identity Provider (IdP) ในการตรวจสอบและยืนยันตัวตนของผู้ใช้งานแบบ Secure โดยทำหน้าที่เก็บรักษาบัญชี (Email & Password) และทำการเข้ารหัสผ่าน (Hashing) ฝั่งเซิร์ฟเวอร์โดยอัตโนมัติ
+- **การประยุกต์ใช้ในโปรเจกต์:** \* ใช้ฟังก์ชัน `createUserWithEmailAndPassword` ในหน้า สมัครสมาชิก (Register) เพื่อสร้างบัญชีใหม่
+  - ใช้ฟังก์ชัน `signInWithEmailAndPassword` ในหน้า เข้าสู่ระบบ (Login) เพื่อตรวจสอบความถูกต้องของอีเมลและรหัสผ่าน
+  - เมื่อยืนยันตัวตนสำเร็จ Firebase Auth จะส่ง Token และรหัสผู้ใช้เฉพาะตัว (`uid`) กลับมาให้ Frontend ใช้ในการอ้างอิงสิทธิ์ต่อ
 
-## Recommended Browser Setup
+---
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+### 2. Cloud Firestore (ระบบฐานข้อมูล)
 
-## Type Support for `.vue` Imports in TS
+- **หลักการทำงาน:** เป็นฐานข้อมูลประเภท **NoSQL Document Database** ที่จัดเก็บข้อมูลในรูปแบบของ **Collections** (กลุ่มของข้อมูล) และ **Documents** (เอกสารข้อมูลเดี่ยวในรูปแบบคล้าย JSON) มีความยืดหยุ่นสูง รองรับการขยายตัว (Scalability) และสามารถดึงข้อมูลแบบ Realtime ได้
+- **การประยุกต์ใช้ในโปรเจกต์:**
+  - **คอลเลกชัน `users`:** หลังจากสมัครสมาชิกสำเร็จ จะนำข้อมูลเพิ่มเติมที่ไม่สามารถเก็บใน Auth ได้ (ชื่อ, นามสกุล, เบอร์โทรศัพท์) ไปบันทึกใน Firestore โดยใช้ `uid` จากระบบ Auth เป็นชื่อ Document ID เพื่อให้ข้อมูลผูกกันอย่างถูกต้องผ่านฟังก์ชัน `setDoc`
+  - **คอลเลกชัน `products`:** ใช้เป็นฐานข้อมูลในการ Mockup ข้อมูลสินค้า (รหัสสินค้า, ชื่อ, ราคา, หมวดหมู่, ลิงก์รูปภาพ) เพื่อให้ฝั่ง Frontend ใช้ฟังก์ชัน `getDocs` ดึงข้อมูลมาวนลูปแสดงผลบนหน้าเว็บ
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+---
 
-## Customize configuration
+### 3. Firebase Hosting (ระบบจัดการเซิร์ฟเวอร์เสิร์ฟเว็บแอป)
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+- **หลักการทำงาน:** บริการสำหรับโฮสต์ไฟล์ Static (HTML, CSS, JavaScript) ที่ผ่านการคอมไพล์ (Build) แล้ว โดยระบบจะกระจายไฟล์ไปยับเซิร์ฟเวอร์จำลองทั่วโลกผ่านระบบ **CDN (Content Delivery Network)** ของ Google ทำให้ผู้ใช้งานเข้าถึงเว็บไซต์ได้อย่างรวดเร็ว มีความเสถียรสูง และรองรับความปลอดภัยด้วยโปรโตคอล HTTPS (SSL) โดยอัตโนมัติ
+- **การประยุกต์ใช้ในโปรเจกต์:**
+  - ทำการ Build โปรเจกต์ Vue 3 ผ่าน Vite ออกมาเป็นไฟล์ Static ในโฟลเดอร์ `dist`
+  - ใช้ Firebase CLI ในการตั้งค่าให้เซิร์ฟเวอร์ชี้เส้นทางทั้งหมดกลับมาที่ `index.html` (สำหรับรองรับ Single Page Application หรือ Vue Router)
+  - Deploy ไฟล์ขึ้นออนไลน์จริงผ่านคำสั่ง `firebase deploy`
 
-## Project Setup
-
-```sh
-npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
-
-### Type-Check, Compile and Minify for Production
-
-```sh
-npm run build
-```
+---
